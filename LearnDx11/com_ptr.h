@@ -43,11 +43,13 @@ public:
 		return p
 	}
 
+	const PtrType* getAddress() const { return &_ptr; }
+
 	operator PtrType () { return _ptr; }
 	operator const PtrType () const { return _ptr; }
 	PtrType operator-> () { return _ptr; }
 	const PtrType operator-> () const { return _ptr; }
-	PtrType* operator& () { return &_ptr; }
+	PtrType* operator& () { assert(!_ptr); return &_ptr; }
 	operator bool() const { return (nullptr != _ptr); }
 	bool operator== (PtrType p) const { return (p == _ptr); }
 	bool operator!= (PtrType p) const { return (p != _ptr); }

@@ -39,6 +39,12 @@
     <ClInclude Include="LMainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LUnifiedTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LD3DApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -59,5 +65,14 @@
     <ClCompile Include="LMainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LUnifiedTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LD3DApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="directx.natvis" />
   </ItemGroup>
 </Project>

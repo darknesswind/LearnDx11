@@ -9,8 +9,25 @@
 
 #include <stdio.h>
 #include <tchar.h>
-#include "Inc/SimpleMath.h"
+#include <cassert>
 #include <iostream>
+#include <vector>
+#include "Inc/SimpleMath.h"
 #include "com_ptr.h"
 
 // TODO: reference additional headers your program requires here
+typedef __int64 int64;
+typedef unsigned short ushort;
+
+HRESULT ReportErrorResult(HRESULT hr, LPCWSTR code);
+
+#define LAssert assert
+#if defined(_DEBUG)
+#	ifndef CKERR
+#		define CKHR(x) ReportErrorResult(x, L#x)
+#	endif
+#else
+#	ifndef CKERR
+#		define CKHR(x) (x)
+#	endif
+#endif

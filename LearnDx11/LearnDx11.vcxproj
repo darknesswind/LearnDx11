@@ -107,6 +107,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,6 +143,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -149,17 +151,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="com_ptr.h" />
+    <ClInclude Include="LD3DApplication.h" />
     <ClInclude Include="LD3DDevice.h" />
     <ClInclude Include="LMainWindow.h" />
+    <ClInclude Include="LUnifiedTimer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestMatrix.h" />
     <ClInclude Include="TestVector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LD3DApplication.cpp" />
     <ClCompile Include="LD3DDevice.cpp" />
     <ClCompile Include="LearnDx11.cpp" />
     <ClCompile Include="LMainWindow.cpp" />
+    <ClCompile Include="LUnifiedTimer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -170,9 +176,7 @@
     <ClCompile Include="TestVector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GitHub\DirectXTK\DirectXTK_Desktop_2015.vcxproj">
-      <Project>{e0b52ae7-e160-4d32-bf3f-910b785e5a8e}</Project>
-    </ProjectReference>
+    <Natvis Include="directx.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
