@@ -50,6 +50,7 @@ bool LD3DDevice::setup()
 	if (!createDepthStencilView())
 		return false;
 
+	createViewport();
 	return true;
 }
 
@@ -160,6 +161,15 @@ bool LD3DDevice::createDepthStencilView()
 	return true;
 }
 
+void LD3DDevice::createViewport()
+{
+	D3D11_VIEWPORT viewport = { 0 };
+	viewport.Width = m_pWindow->width();
+	viewport.Height = m_pWindow->height();
+	viewport.MaxDepth = 1;
+	m_spImmContext->RSSetViewports(1, &viewport);
+}
+
 void LD3DDevice::fillSwapChainDesc(HWND hwnd, DXGI_SWAP_CHAIN_DESC& chainDesc)
 {
 	DXGI_MODE_DESC& buff = chainDesc.BufferDesc;
@@ -217,6 +227,27 @@ void LD3DDevice::fillDepthTexture2DDesc(D3D11_TEXTURE2D_DESC& desc)
 	desc.MiscFlags = 0;
 }
 
+void LD3DDevice::fillVertexBuffDesc(D3D11_BUFFER_DESC& desc, UINT size)
+{
+	desc.ByteWidth = size;
+	desc.Usage = D3D11_USAGE_IMMUTABLE;
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.CPUAccessFlags = 0;// D3D11_CPU_ACCESS_FLAG
+	desc.MiscFlags = 0;		// D3D11_RESOURCE_MISC_FLAG
+	desc.StructureByteStride = 0;
+}
+
+HRESULT LD3DDevice::getFactory(ID3D11Device* pDevice, IDXGIFactory** ppFactory)
+{
+	com_ptr<IDXGIDevice> spGIDevice = pDevice;
+	com_ptr<IDXGIAdapter> spAdapter;
+	HRESULT hr = CKHR(spGIDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&spAdapter));
+	if (FAILED(hr))
+		return hr;
+
+	return spAdapter->GetParent(__uuidof(IDXGIFactory), (void**)ppFactory);
+}
+
 void LD3DDevice::printDeviceInfo()
 {
 	if (!m_spFactory)
@@ -260,7 +291,7 @@ void LD3DDevice::printDeviceInfo()
 			UINT prevW = 0, prevH = 0, prevR = 0;
 			for (size_t i = 0; i < cnt; ++i)
 			{
-				UINT refRate = round(1.0 * modes[i].RefreshRate.Numerator / modes[i].RefreshRate.Denominator);
+				UINT refRate = static_cast<UINT>(round(1.0 * modes[i].RefreshRate.Numerator / modes[i].RefreshRate.Denominator));
 				if (prevW == modes[i].Width && prevH == modes[i].Height && prevR == refRate)
 					continue;
 				prevW = modes[i].Width;
@@ -275,13 +306,88 @@ void LD3DDevice::printDeviceInfo()
 	}
 }
 
-HRESULT LD3DDevice::getFactory(ID3D11Device* pDevice, IDXGIFactory** ppFactory)
+void LD3DDevice::test_createInputLayout()
 {
-	com_ptr<IDXGIDevice> spGIDevice = pDevice;
-	com_ptr<IDXGIAdapter> spAdapter;
-	HRESULT hr = CKHR(spGIDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&spAdapter));
-	if (FAILED(hr))
-		return hr;
+	CKHR(D3DX11CreateEffectFromFile(L"effect.fxo", 0, m_spDevice, &m_spEffect));
 
-	return spAdapter->GetParent(__uuidof(IDXGIFactory), (void**)ppFactory);
+	D3DX11_PASS_DESC passDesc = { 0 };
+	m_spEffect->GetTechniqueByIndex(0)->GetPassByIndex(0)->GetDesc(&passDesc);
+
+	D3D11_INPUT_ELEMENT_DESC desc1[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	com_ptr<ID3D11InputLayout> spLayout;
+	CKHR(m_spDevice->CreateInputLayout(desc1, ARRAYSIZE(desc1),
+		passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &spLayout));
+	m_spImmContext->IASetInputLayout(spLayout);
+}
+
+void LD3DDevice::test_createBuff()
+{
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT4 clr;
+	};
+	Vertex vertics[] =
+	{
+		{ DirectX::XMFLOAT3(-1.f, -1.f, -1.f), DirectX::XMFLOAT4(DirectX::Colors::White) },
+		{ DirectX::XMFLOAT3(-1.f, 1.f, -1.f), DirectX::XMFLOAT4(DirectX::Colors::Black) },
+		{ DirectX::XMFLOAT3(1.f, 1.f, -1.f), DirectX::XMFLOAT4(DirectX::Colors::Red) },
+		{ DirectX::XMFLOAT3(1.f, -1.f, -1.f), DirectX::XMFLOAT4(DirectX::Colors::Green) },
+		{ DirectX::XMFLOAT3(-1.f, -1.f, 1.f), DirectX::XMFLOAT4(DirectX::Colors::Blue) },
+		{ DirectX::XMFLOAT3(-1.f, 1.f, 1.f), DirectX::XMFLOAT4(DirectX::Colors::Yellow) },
+		{ DirectX::XMFLOAT3(1.f, 1.f, 1.f), DirectX::XMFLOAT4(DirectX::Colors::Cyan) },
+		{ DirectX::XMFLOAT3(1.f, -1.f, 1.f), DirectX::XMFLOAT4(DirectX::Colors::Magenta) },
+	};
+
+	{{
+		D3D11_BUFFER_DESC vbd = { 0 };
+		fillVertexBuffDesc(vbd, sizeof(vertics));
+
+		D3D11_SUBRESOURCE_DATA srd = { vertics };
+
+		com_ptr<ID3D11Buffer> spBuff;
+		m_spDevice->CreateBuffer(&vbd, &srd, &spBuff);
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		m_spImmContext->IASetVertexBuffers(0, 1, spBuff.getAddress(), &stride, &offset);
+	}}
+	UINT indices[24] =
+	{
+		0, 1, 2,
+		0, 2, 3,
+		0, 3, 4,
+		0, 4, 5,
+		0, 5, 6,
+		0, 6, 7,
+		0, 7, 8,
+		0, 8, 1
+	};
+	{{
+		D3D11_BUFFER_DESC ibd = { 0 };
+		fillVertexBuffDesc(ibd, sizeof(indices));
+		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA srd = { indices };
+
+		com_ptr<ID3D11Buffer> spBuff;
+		m_spDevice->CreateBuffer(&ibd, &srd, &spBuff);
+		m_spImmContext->IASetIndexBuffer(spBuff, DXGI_FORMAT_R32_UINT, 0);
+	}}
+	m_spImmContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	DirectX::XMFLOAT4X4 m4 =
+	{
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 0
+	};
+
+	m_spEffect->GetConstantBufferByIndex(0)->GetMemberByIndex(0)->AsMatrix()->SetMatrixTranspose((float*)&m4.m);
+	m_spEffect->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, m_spImmContext);
+	m_spImmContext->DrawIndexed(ARRAYSIZE(indices), 0, 0);
 }

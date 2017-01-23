@@ -13,6 +13,7 @@
 #include <iostream>
 #include <vector>
 #include "Inc/SimpleMath.h"
+#include "Inc/d3dx11effect.h"
 #include "com_ptr.h"
 
 // TODO: reference additional headers your program requires here
@@ -23,11 +24,11 @@ HRESULT ReportErrorResult(HRESULT hr, LPCWSTR code);
 
 #define LAssert assert
 #if defined(_DEBUG)
-#	ifndef CKERR
+#	ifndef CKHR
 #		define CKHR(x) ReportErrorResult(x, L#x)
 #	endif
 #else
-#	ifndef CKERR
+#	ifndef CKHR
 #		define CKHR(x) (x)
 #	endif
 #endif

@@ -1,3 +1,6 @@
 [submodule "DirectXTK"]
 	path = DirectXTK
 	url = https://github.com/Microsoft/DirectXTK.git
+[submodule "FX11"]
+	path = FX11
+	url = https://github.com/Microsoft/FX11.git

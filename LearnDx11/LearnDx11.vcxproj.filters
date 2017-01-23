@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="effect">
+      <UniqueIdentifier>{e7341676-d9ea-4854-bdc5-2563b5c4e2ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -45,6 +48,9 @@
     <ClInclude Include="LD3DApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -71,8 +77,16 @@
     <ClCompile Include="LD3DApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="directx.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="effect\effect.fx">
+      <Filter>effect</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

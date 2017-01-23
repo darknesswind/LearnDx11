@@ -25,9 +25,11 @@ bool LD3DApplication::init()
 
 int LD3DApplication::exec()
 {
+	m_device.test_createInputLayout();
 	m_unifiedTimer.start();
 	while (m_mainWnd.processMessage())
 	{
+		m_device.test_createBuff();
 		update();
 		draw();
 
@@ -54,5 +56,4 @@ void LD3DApplication::update()
 
 void LD3DApplication::draw()
 {
-
 }

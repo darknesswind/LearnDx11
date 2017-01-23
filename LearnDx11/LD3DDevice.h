@@ -21,13 +21,20 @@ protected:
 	bool createSwapChain();
 	bool createRenderTargetView();
 	bool createDepthStencilView();
+	void createViewport();
 
 	void fillSwapChainDesc(HWND hwnd, DXGI_SWAP_CHAIN_DESC& desc);
 	void fillSampleDesc(DXGI_SAMPLE_DESC& desc);
 	void fillDepthTexture2DDesc(D3D11_TEXTURE2D_DESC& desc);
+	void fillVertexBuffDesc(D3D11_BUFFER_DESC& desc, UINT size);
 
-	void printDeviceInfo();
 	static HRESULT getFactory(ID3D11Device* pDevice, IDXGIFactory** ppFactory);
+
+public:
+	void printDeviceInfo();
+	void test_createInputLayout();
+	void test_createBuff();
+
 private:
 	LD3DApplication* m_pApp;
 	LMainWindow* m_pWindow;
@@ -37,6 +44,7 @@ private:
 	com_ptr<IDXGISwapChain> m_spSwapChin;
 	com_ptr<ID3D11RenderTargetView> m_spTargetView;
 	com_ptr<ID3D11DepthStencilView> m_spDepthView;
+	com_ptr<ID3DX11Effect> m_spEffect;
 
 	bool m_bUse4xMSAA;
 
