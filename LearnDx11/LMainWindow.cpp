@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "LMainWindow.h"
 #include "LD3DApplication.h"
+#include "LInput.h"
+#include "LD3DDevice.h"
 
 #define WndClassName L"LiteDx11Window"
 
@@ -26,6 +28,7 @@ void LMainWindow::setup()
 	SetWindowLongW(m_hwnd, GWL_USERDATA, reinterpret_cast<LONG>(this));
 	ShowWindow(m_hwnd, SW_SHOW);
 // 	UpdateWindow(m_hwnd);
+	DirectX::Mouse::Get().SetWindow(m_hwnd);
 }
 
 bool LMainWindow::processMessage()
@@ -72,6 +75,9 @@ bool LMainWindow::createWindow()
 
 LRESULT LMainWindow::onMessage(UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	DirectX::Keyboard::ProcessMessage(msg, wparam, lparam);
+	DirectX::Mouse::ProcessMessage(msg, wparam, lparam);
+
 	switch (msg)
 	{
 	case WM_ACTIVATE:
@@ -94,6 +100,7 @@ LRESULT LMainWindow::onMessage(UINT msg, WPARAM wparam, LPARAM lparam)
 		PostQuitMessage(0);
 		break;
 	case WM_QUIT:
+	case WM_CLOSE:
 		s_bQuitFlag = true;
 		break;
 	}

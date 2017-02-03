@@ -12,6 +12,10 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <memory>
+
+#include <DirectXColors.h>
+
 #include "Inc/SimpleMath.h"
 #include "Inc/d3dx11effect.h"
 #include "com_ptr.h"
@@ -19,6 +23,10 @@
 // TODO: reference additional headers your program requires here
 typedef __int64 int64;
 typedef unsigned short ushort;
+
+typedef DirectX::SimpleMath::Vector4 Vector4;
+typedef DirectX::SimpleMath::Vector3 Vector3;
+typedef DirectX::SimpleMath::Matrix Matrix;
 
 HRESULT ReportErrorResult(HRESULT hr, LPCWSTR code);
 

@@ -16,6 +16,9 @@
     <Filter Include="effect">
       <UniqueIdentifier>{e7341676-d9ea-4854-bdc5-2563b5c4e2ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sample">
+      <UniqueIdentifier>{0974a291-59c6-4aca-84d0-8e864e793788}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -51,6 +54,21 @@
     <ClInclude Include="LFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LRender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sample\ColorBoxSample.h">
+      <Filter>sample</Filter>
+    </ClInclude>
+    <ClInclude Include="sample\LSampleBase.h">
+      <Filter>sample</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -79,6 +97,21 @@
     </ClCompile>
     <ClCompile Include="LFile.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sample\ColorBoxSample.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="sample\LSampleBase.cpp">
+      <Filter>sample</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

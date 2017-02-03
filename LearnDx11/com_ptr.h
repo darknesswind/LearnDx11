@@ -43,7 +43,7 @@ public:
 		return p
 	}
 
-	const PtrType* getAddress() const { return &_ptr; }
+	const PtrType* get() const { return &_ptr; }
 
 	operator PtrType () { return _ptr; }
 	operator const PtrType () const { return _ptr; }
