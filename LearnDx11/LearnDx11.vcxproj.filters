@@ -69,6 +69,12 @@
     <ClInclude Include="sample\LSampleBase.h">
       <Filter>sample</Filter>
     </ClInclude>
+    <ClInclude Include="sample\LSamples.h">
+      <Filter>sample</Filter>
+    </ClInclude>
+    <ClInclude Include="sample\MontainSample.h">
+      <Filter>sample</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -111,6 +117,12 @@
       <Filter>sample</Filter>
     </ClCompile>
     <ClCompile Include="sample\LSampleBase.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="sample\LSamples.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="sample\MontainSample.cpp">
       <Filter>sample</Filter>
     </ClCompile>
   </ItemGroup>

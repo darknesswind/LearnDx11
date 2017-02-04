@@ -5,7 +5,7 @@
 class LMainWindow;
 class LD3DDevice;
 class LInput;
-class LSampleBase;
+class LSamples;
 
 class LD3DApplication
 {
@@ -39,6 +39,6 @@ protected:
 	com_ptr<ID3DX11Effect> m_spEffect;
 
 	LCamera m_camera;
-	std::unique_ptr<LSampleBase> m_spSample;
+	std::unique_ptr<LSamples> m_spSamples;
 };
 

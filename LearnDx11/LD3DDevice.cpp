@@ -20,7 +20,7 @@ bool LD3DDevice::setup()
 {
 	if (!DirectX::XMVerifyCPUSupport())
 	{
-		assert(!"DirectX::XMVerifyCPUSupport");
+		OutputDebugStringW(L"DirectX::XMVerifyCPUSupport failed!\n");
 	}
 	m_pWindow = m_pApp->mainWindow();
 	assert(m_pWindow);
@@ -102,11 +102,11 @@ bool LD3DDevice::createDevice()
 
 	if (D3D_FEATURE_LEVEL_11_0 != supportLevel)
 	{
-		std::cout << "Not support DirectX 11!" << std::endl;
+		OutputDebugStringW(L"Not support DirectX 11!\n");
 	}
 	if (FAILED(hr))
 	{
-		std::cout << "Create device failed!" << std::endl;
+		OutputDebugStringW(L"Create device failed!\n");
 		return false;
 	}
 	return true;

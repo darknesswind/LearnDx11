@@ -2,14 +2,10 @@
 
 #include "ColorBoxSample.h"
 #include "LD3DApplication.h"
-#include "LD3DDevice.h"
 
 ColorBoxSample::ColorBoxSample(LD3DApplication* pApp)
 	: LSampleBase(pApp)
 {
-	LD3DDevice* pDevice = m_pApp->device();
-	m_pDevice = pDevice->device();
-	m_pContext = pDevice->immContext();
 }
 
 
@@ -17,30 +13,8 @@ ColorBoxSample::~ColorBoxSample()
 {
 }
 
-void ColorBoxSample::createInputLayout()
-{
-	D3DX11_PASS_DESC passDesc = { 0 };
-	m_pApp->effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->GetDesc(&passDesc);
-
-	D3D11_INPUT_ELEMENT_DESC desc1[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	com_ptr<ID3D11InputLayout> spLayout;
-	CKHR(m_pDevice->CreateInputLayout(desc1, ARRAYSIZE(desc1),
-		passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &spLayout));
-	m_pContext->IASetInputLayout(spLayout);
-
-}
-
 void ColorBoxSample::createVertexBuf()
 {
-	struct Vertex
-	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT4 clr;
-	};
 	Vertex vertics[] =
 	{
 		{ DirectX::XMFLOAT3(-1.f, -1.f, -1.f), DirectX::XMFLOAT4(DirectX::Colors::White) },

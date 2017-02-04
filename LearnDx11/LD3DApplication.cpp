@@ -3,7 +3,8 @@
 #include "LMainWindow.h"
 #include "LD3DDevice.h"
 #include "LInput.h"
-#include "sample/ColorBoxSample.h"
+#include "sample/LSamples.h"
+#include "sample/LSampleBase.h"
 
 LD3DApplication::LD3DApplication(HINSTANCE hInstance)
 	: m_hInstance(hInstance)
@@ -25,25 +26,25 @@ bool LD3DApplication::init()
 	if (!m_spDevice->setup())
 		return false;
 
-	m_camera.setPosition(5.0f, .25f * DirectX::XM_PI, 1.5f * DirectX::XM_PI);
+// 	m_camera.setPosition(5.0f, .25f * DirectX::XM_PI, 1.5f * DirectX::XM_PI);
+	m_camera.setPosition(5.0f, 0, 0);
 
 	CKHR(D3DX11CreateEffectFromFile(L"effect.fxo", 0, m_spDevice->device(), &m_spEffect));
 
-	m_spSample.reset(new ColorBoxSample(this));
+	m_spSamples.reset(new LSamples(this));
+	m_spSamples->init();
 	return true;
 }
 
 int LD3DApplication::exec()
 {
-	m_spSample->createInputLayout();
-	m_spSample->createVertexBuf();
-	m_spSample->createIndexBuf();
+	m_spSamples->select(0);
 	m_unifiedTimer.start();
 	while (m_spMainWnd->processMessage())
 	{
 		m_spInput->update();
 
-		m_spSample->draw();
+		m_spSamples->activeSample()->draw();
 		update();
 		draw();
 
@@ -83,12 +84,16 @@ void LD3DApplication::update()
 	if (m_spInput->keyDown(DirectX::Keyboard::Up))
 	{
 		DirectX::XMVECTOR axis = DirectX::XMVector3Cross(m_camera.up(), m_camera.lookat());
+		if (DirectX::XMVector3Equal(axis, DirectX::XMVectorZero()))
+			axis = DirectX::XMVectorSet(1.f, 0, 0, 0);
 		DirectX::XMVECTOR q = DirectX::XMQuaternionRotationAxis(axis, .01f);
 		m_camera.rotate(q);
 	}
 	else if (m_spInput->keyDown(DirectX::Keyboard::Down))
 	{
 		DirectX::XMVECTOR axis = DirectX::XMVector3Cross(m_camera.up(), m_camera.lookat());
+		if (DirectX::XMVector3Equal(axis, DirectX::XMVectorZero()))
+			axis = DirectX::XMVectorSet(1.f, 0, 0, 0);
 		DirectX::XMVECTOR q = DirectX::XMQuaternionRotationAxis(axis, -.01f);
 		m_camera.rotate(q);
 	}
