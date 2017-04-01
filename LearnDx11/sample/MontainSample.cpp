@@ -21,8 +21,12 @@ void MontainSample::createVertexBuf()
 		for (size_t c = 0; c <= s_xCnt; ++c, ++pos)
 		{
 			Vertex& vertex = m_verties[pos];
-			vertex.clr = DirectX::XMFLOAT4(DirectX::Colors::White);
-			vertex.pos = DirectX::XMFLOAT3(4.f * c / s_xCnt - 2.f, 0, 4.f * r / s_zCnt - 2.f);
+			float x = 4.f * c / s_xCnt - 2.f;
+			float z = 4.f * r / s_zCnt - 2.f;
+			float y = std::sin(x * z) + std::sin(x + z);
+			vertex.pos = DirectX::XMFLOAT3(x, y, z);
+			float tint = y / 2.0f + .5f;
+			vertex.clr = DirectX::XMFLOAT4(tint, tint, tint, 1.0f);
 		}
 	}
 
@@ -30,12 +34,7 @@ void MontainSample::createVertexBuf()
 	fillBufDesc(vbd, sizeof(Vertex) * m_verties.size(), D3D11_BIND_VERTEX_BUFFER);
 
 	D3D11_SUBRESOURCE_DATA srd = { m_verties.data() };
-
-	com_ptr<ID3D11Buffer> spBuff;
-	m_pDevice->CreateBuffer(&vbd, &srd, &spBuff);
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	m_pContext->IASetVertexBuffers(0, 1, spBuff.get(), &stride, &offset);
+	m_pDevice->CreateBuffer(&vbd, &srd, &m_spVertexBuff);
 }
 
 void MontainSample::createIndexBuf()
@@ -46,9 +45,9 @@ void MontainSample::createIndexBuf()
 	{
 		for (size_t c = 0; c < s_xCnt; ++c)
 		{
-			size_t lt = r * (s_xCnt + 1) + c;
+			size_t lt = (r + 1) * (s_xCnt + 1) + c;
+			size_t lb = r * (s_xCnt + 1) + c;
 			size_t rt = lt + 1;
-			size_t lb = (r + 1) * (s_xCnt + 1) + c;
 			size_t rb = lb + 1;
 
 			pData[0] = lt;
@@ -67,10 +66,7 @@ void MontainSample::createIndexBuf()
 	fillBufDesc(ibd, sizeof(size_t) * m_indices.size(), D3D11_BIND_INDEX_BUFFER);
 
 	D3D11_SUBRESOURCE_DATA srd = { m_indices.data() };
-
-	com_ptr<ID3D11Buffer> spBuff;
-	m_pDevice->CreateBuffer(&ibd, &srd, &spBuff);
-	m_pContext->IASetIndexBuffer(spBuff, DXGI_FORMAT_R32_UINT, 0);
+	m_pDevice->CreateBuffer(&ibd, &srd, &m_spIndexBuff);
 }
 
 void MontainSample::draw()
@@ -81,6 +77,10 @@ void MontainSample::draw()
 	m_pApp->effect()->GetConstantBufferByIndex(0)->GetMemberByIndex(0)->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&m));
 	m_pApp->effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, m_pContext);
 
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	m_pContext->IASetVertexBuffers(0, 1, m_spVertexBuff.get(), &stride, &offset);
+	m_pContext->IASetIndexBuffer(m_spIndexBuff, DXGI_FORMAT_R32_UINT, 0);
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_pContext->DrawIndexed(m_indices.size(), 0, 0);
 }

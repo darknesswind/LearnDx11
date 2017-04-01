@@ -5,6 +5,7 @@
 #include "LInput.h"
 #include "sample/LSamples.h"
 #include "sample/LSampleBase.h"
+#include "sample/CordinateAxis.h"
 
 LD3DApplication::LD3DApplication(HINSTANCE hInstance)
 	: m_hInstance(hInstance)
@@ -27,7 +28,7 @@ bool LD3DApplication::init()
 		return false;
 
 // 	m_camera.setPosition(5.0f, .25f * DirectX::XM_PI, 1.5f * DirectX::XM_PI);
-	m_camera.setPosition(5.0f, 0, 0);
+	m_camera.setPosition(5.0f, 0.25*DirectX::XM_PI, 0.25*DirectX::XM_PI);
 
 	CKHR(D3DX11CreateEffectFromFile(L"effect.fxo", 0, m_spDevice->device(), &m_spEffect));
 
@@ -38,13 +39,19 @@ bool LD3DApplication::init()
 
 int LD3DApplication::exec()
 {
-	m_spSamples->select(0);
+	std::unique_ptr<CordinateAxis> spAxis = std::make_unique<CordinateAxis>(this);
+	spAxis->createInputLayout();
+	spAxis->createVertexBuf();
+	spAxis->createIndexBuf();
+
+	m_spSamples->select(1);
 	m_unifiedTimer.start();
 	while (m_spMainWnd->processMessage())
 	{
 		m_spInput->update();
 
 		m_spSamples->activeSample()->draw();
+		spAxis->draw();
 		update();
 		draw();
 

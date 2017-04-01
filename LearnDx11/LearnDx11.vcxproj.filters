@@ -75,6 +75,9 @@
     <ClInclude Include="sample\MontainSample.h">
       <Filter>sample</Filter>
     </ClInclude>
+    <ClInclude Include="sample\CordinateAxis.h">
+      <Filter>sample</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -123,6 +126,9 @@
       <Filter>sample</Filter>
     </ClCompile>
     <ClCompile Include="sample\MontainSample.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="sample\CordinateAxis.cpp">
       <Filter>sample</Filter>
     </ClCompile>
   </ItemGroup>

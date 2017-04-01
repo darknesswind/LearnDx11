@@ -27,5 +27,7 @@ protected:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pContext;
 
+	com_ptr<ID3D11Buffer> m_spVertexBuff;
+	com_ptr<ID3D11Buffer> m_spIndexBuff;
 };
 

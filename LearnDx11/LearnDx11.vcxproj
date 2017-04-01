@@ -162,6 +162,7 @@
     <ClInclude Include="LRender.h" />
     <ClInclude Include="LUnifiedTimer.h" />
     <ClInclude Include="sample\ColorBoxSample.h" />
+    <ClInclude Include="sample\CordinateAxis.h" />
     <ClInclude Include="sample\LSampleBase.h" />
     <ClInclude Include="sample\LSamples.h" />
     <ClInclude Include="sample\MontainSample.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="LRender.cpp" />
     <ClCompile Include="LUnifiedTimer.cpp" />
     <ClCompile Include="sample\ColorBoxSample.cpp" />
+    <ClCompile Include="sample\CordinateAxis.cpp" />
     <ClCompile Include="sample\LSampleBase.cpp" />
     <ClCompile Include="sample\LSamples.cpp" />
     <ClCompile Include="sample\MontainSample.cpp" />

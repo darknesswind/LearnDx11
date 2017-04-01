@@ -31,12 +31,7 @@ void ColorBoxSample::createVertexBuf()
 	fillBufDesc(vbd, sizeof(vertics), D3D11_BIND_VERTEX_BUFFER);
 
 	D3D11_SUBRESOURCE_DATA srd = { vertics };
-
-	com_ptr<ID3D11Buffer> spBuff;
-	m_pDevice->CreateBuffer(&vbd, &srd, &spBuff);
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	m_pContext->IASetVertexBuffers(0, 1, spBuff.get(), &stride, &offset);
+	m_pDevice->CreateBuffer(&vbd, &srd, &m_spVertexBuff);
 }
 
 UINT g_indices[] =
@@ -61,10 +56,7 @@ void ColorBoxSample::createIndexBuf()
 	fillBufDesc(ibd, sizeof(g_indices), D3D11_BIND_INDEX_BUFFER);
 
 	D3D11_SUBRESOURCE_DATA srd = { g_indices };
-
-	com_ptr<ID3D11Buffer> spBuff;
-	m_pDevice->CreateBuffer(&ibd, &srd, &spBuff);
-	m_pContext->IASetIndexBuffer(spBuff, DXGI_FORMAT_R32_UINT, 0);
+	m_pDevice->CreateBuffer(&ibd, &srd, &m_spIndexBuff);
 }
 
 void ColorBoxSample::draw()
@@ -75,6 +67,10 @@ void ColorBoxSample::draw()
 	m_pApp->effect()->GetConstantBufferByIndex(0)->GetMemberByIndex(0)->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&m));
 	m_pApp->effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, m_pContext);
 
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	m_pContext->IASetVertexBuffers(0, 1, m_spVertexBuff.get(), &stride, &offset);
+	m_pContext->IASetIndexBuffer(m_spIndexBuff, DXGI_FORMAT_R32_UINT, 0);
 	m_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_pContext->DrawIndexed(ARRAYSIZE(g_indices), 0, 0);
 }
