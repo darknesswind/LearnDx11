@@ -8,11 +8,7 @@ public:
 	~CordinateAxis();
 
 public:
-	void createVertexBuf() override;
-	void createIndexBuf() override;
-	void draw() override;
+	void createModel(MeshData& mesh) override;
 
-private:
-	std::vector<Vertex> m_verties;
 };
 

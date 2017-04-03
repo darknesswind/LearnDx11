@@ -78,6 +78,9 @@
     <ClInclude Include="sample\CordinateAxis.h">
       <Filter>sample</Filter>
     </ClInclude>
+    <ClInclude Include="sample\ShapesSample.h">
+      <Filter>sample</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -129,6 +132,9 @@
       <Filter>sample</Filter>
     </ClCompile>
     <ClCompile Include="sample\CordinateAxis.cpp">
+      <Filter>sample</Filter>
+    </ClCompile>
+    <ClCompile Include="sample\ShapesSample.cpp">
       <Filter>sample</Filter>
     </ClCompile>
   </ItemGroup>

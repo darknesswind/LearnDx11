@@ -16,6 +16,31 @@ LSampleBase::~LSampleBase()
 {
 }
 
+void LSampleBase::create()
+{
+	createInputLayout();
+
+	MeshData mesh;
+	createModel(mesh);
+	m_vertexSize = mesh.vertices.size();
+	m_indexSize = mesh.indices.size();
+
+	D3D11_BUFFER_DESC vbd = { 0 };
+	fillBufDesc(vbd, sizeof(Vertices::value_type) * m_vertexSize, D3D11_BIND_VERTEX_BUFFER);
+
+	D3D11_SUBRESOURCE_DATA srd = { mesh.vertices.data() };
+	m_pDevice->CreateBuffer(&vbd, &srd, &m_spVertexBuff);
+
+	if (!mesh.indices.empty())
+	{
+		D3D11_BUFFER_DESC ibd = { 0 };
+		fillBufDesc(ibd, sizeof(Indices::value_type) * m_indexSize, D3D11_BIND_INDEX_BUFFER);
+
+		D3D11_SUBRESOURCE_DATA srd = { mesh.indices.data() };
+		m_pDevice->CreateBuffer(&ibd, &srd, &m_spIndexBuff);
+	}
+}
+
 void LSampleBase::createInputLayout()
 {
 	D3DX11_PASS_DESC passDesc = { 0 };
@@ -34,37 +59,41 @@ void LSampleBase::createInputLayout()
 	com_ptr<ID3D11RasterizerState> spState;
 	D3D11_RASTERIZER_DESC desc;
 	memset(&desc, 0, sizeof(desc));
-	bool bBorder = false;
-	if (bBorder)
-	{
-		desc.FillMode = D3D11_FILL_WIREFRAME;
-		desc.CullMode = D3D11_CULL_NONE;
-	}
-	else
-	{
-		desc.FillMode = D3D11_FILL_SOLID;
-		desc.CullMode = D3D11_CULL_BACK;
-	}
 
+	desc.FillMode = m_fillMode;
+	desc.CullMode = m_cullMode;
 	desc.DepthClipEnable = TRUE;
 
 	m_pDevice->CreateRasterizerState(&desc, &spState);
 	m_pContext->RSSetState(spState);
 }
 
-void LSampleBase::createVertexBuf()
-{
-
-}
-
-void LSampleBase::createIndexBuf()
+void LSampleBase::createModel(MeshData& mesh)
 {
 
 }
 
 void LSampleBase::draw()
 {
+	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 4 / 3.f, 1.0f, 1000.0f);
+	DirectX::XMMATRIX m = m_pApp->camera()->matrix() * proj;
 
+	m_pApp->effect()->GetConstantBufferByIndex(0)->GetMemberByIndex(0)->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&m));
+	m_pApp->effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, m_pContext);
+	m_pContext->IASetPrimitiveTopology(m_topology);
+
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	m_pContext->IASetVertexBuffers(0, 1, m_spVertexBuff.get(), &stride, &offset);
+	if (m_indexSize > 0)
+	{
+		m_pContext->IASetIndexBuffer(m_spIndexBuff, DXGI_FORMAT_R32_UINT, 0);
+		m_pContext->DrawIndexed(m_indexSize, 0, 0);
+	}
+	else
+	{
+		m_pContext->Draw(m_vertexSize, 0);
+	}
 }
 
 void LSampleBase::fillBufDesc(D3D11_BUFFER_DESC& desc, UINT size, D3D11_BIND_FLAG bindFlag)

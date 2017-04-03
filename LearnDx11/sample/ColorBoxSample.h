@@ -10,9 +10,7 @@ public:
 	~ColorBoxSample();
 
 public:
-	void createVertexBuf() override;
-	void createIndexBuf() override;
-	void draw() override;
+	void createModel(MeshData& mesh) override;
 
 private:
 };

@@ -8,15 +8,10 @@ public:
 	~MontainSample();
 
 public:
-	void createVertexBuf() override;
-	void createIndexBuf() override;
-	void draw() override;
+	void createModel(MeshData& mesh) override;
 
 private:
 	const static size_t s_xCnt = 40;
 	const static size_t s_zCnt = 40;
-
-	std::vector<Vertex> m_verties;
-	std::vector<size_t> m_indices;
 };
 

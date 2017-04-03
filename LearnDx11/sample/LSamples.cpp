@@ -2,6 +2,7 @@
 #include "LSamples.h"
 #include "ColorBoxSample.h"
 #include "MontainSample.h"
+#include "ShapesSample.h"
 
 LSamples::LSamples(LD3DApplication* pApp)
 	: m_pApp(pApp)
@@ -18,6 +19,7 @@ void LSamples::init()
 {
 	m_samples.push_back(new ColorBoxSample(m_pApp));
 	m_samples.push_back(new MontainSample(m_pApp));
+	m_samples.push_back(new ShapesSample(m_pApp));
 }
 
 void LSamples::select(size_t idx)
@@ -26,7 +28,5 @@ void LSamples::select(size_t idx)
 		return;
 
 	m_activeSample = m_samples[idx];
-	m_activeSample->createInputLayout();
-	m_activeSample->createVertexBuf();
-	m_activeSample->createIndexBuf();
+	m_activeSample->create();
 }

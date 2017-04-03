@@ -40,11 +40,9 @@ bool LD3DApplication::init()
 int LD3DApplication::exec()
 {
 	std::unique_ptr<CordinateAxis> spAxis = std::make_unique<CordinateAxis>(this);
-	spAxis->createInputLayout();
-	spAxis->createVertexBuf();
-	spAxis->createIndexBuf();
+	spAxis->create();
 
-	m_spSamples->select(1);
+	m_spSamples->select(2);
 	m_unifiedTimer.start();
 	while (m_spMainWnd->processMessage())
 	{

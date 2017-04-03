@@ -166,6 +166,7 @@
     <ClInclude Include="sample\LSampleBase.h" />
     <ClInclude Include="sample\LSamples.h" />
     <ClInclude Include="sample\MontainSample.h" />
+    <ClInclude Include="sample\ShapesSample.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestMatrix.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="sample\LSampleBase.cpp" />
     <ClCompile Include="sample\LSamples.cpp" />
     <ClCompile Include="sample\MontainSample.cpp" />
+    <ClCompile Include="sample\ShapesSample.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
