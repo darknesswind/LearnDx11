@@ -13,7 +13,7 @@ public:
 protected:
 	struct Vertex
 	{
-		DirectX::XMFLOAT3 pos;
+		Vector3 pos;
 		DirectX::XMFLOAT4 clr;
 	};
 	typedef std::vector<Vertex> Vertices;

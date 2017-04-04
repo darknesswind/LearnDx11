@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ShapesSample.h"
-
+#include <unordered_map>
 
 ShapesSample::ShapesSample(LD3DApplication* pApp)
 	: LSampleBase(pApp)
@@ -21,13 +21,18 @@ void ShapesSample::createModel(MeshData& mesh)
 	cylinder.height = 2.0f;
 	cylinder.slice = 10;
 	cylinder.stack = 4;
-	createCylinder(cylinder, mesh);
+// 	createCylinder(cylinder, mesh);
 
 	Sphere sphere = { 0 };
 	sphere.radius = 1.f;
 	sphere.stack = 8;
 	sphere.slice = 16;
-	createSphere(sphere, mesh);
+// 	createSphere(sphere, mesh);
+
+	Geosphere sphere2 = { 0 };
+	sphere2.radius = 2;
+	sphere2.divLevel = 4;
+	createGeosphere(sphere2, mesh);
 }
 
 std::vector<Vector3> ShapesSample::createCircelNormal(size_t slice)
@@ -168,6 +173,96 @@ void ShapesSample::createSphere(const Sphere& shape, MeshData& mesh)
 	createCylindricalTri(mesh.indices, beginIdx + 1, shape.stack - 2, shape.slice);
 	size_t base = mesh.vertices.size() - 1;
 	createCircelTri(mesh.indices, base, base - 1, base - shape.slice);
+}
+
+void ShapesSample::createGeosphere(const Geosphere& shape, MeshData& mesh)
+{
+	size_t vertexBegin = mesh.vertices.size();
+	size_t indexBegin = mesh.indices.size();
+	const float sqrt3 = sqrt(3.f);
+	mesh.vertices.insert(mesh.vertices.end(), 
+	{
+		{ DirectX::XMFLOAT3(0, 1, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
+		{ DirectX::XMFLOAT3(sqrt3 / 2, -0.5f, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
+		{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, 3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) },
+		{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, -3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) }
+	});
+	mesh.indices.insert(mesh.indices.end(),
+	{
+		vertexBegin, vertexBegin + 1, vertexBegin + 3,
+		vertexBegin, vertexBegin + 2, vertexBegin + 1,
+		vertexBegin, vertexBegin + 3, vertexBegin + 2,
+		vertexBegin + 1, vertexBegin + 2, vertexBegin + 3
+	});
+	for (size_t i = 0; i < shape.divLevel; ++i)
+	{
+		subdivGeosphere(mesh, indexBegin, mesh.indices.size());
+	}
+	for (size_t i = vertexBegin; i < mesh.vertices.size(); ++i)
+	{ 
+		 DirectX::XMStoreFloat3(&mesh.vertices[i].pos, 
+			 DirectX::XMVectorScale(
+				 DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&mesh.vertices[i].pos)),
+				 shape.radius));
+	}
+}
+
+void ShapesSample::subdivGeosphere(MeshData& mesh, size_t indexBegin, size_t indexEnd)
+{
+	struct IndexHelper
+	{
+		union Key
+		{
+			struct
+			{
+				size_t iFrom;
+				size_t iTo;
+			};
+			__int64 raw;
+			operator const __int64& () const { return raw; }
+		};
+		std::unordered_map<Key, size_t, std::hash<__int64>> m_map;
+		Vertices& vertices;
+
+		IndexHelper(MeshData& mesh) : vertices(mesh.vertices) {}
+		size_t getMiddle(size_t iFrom, size_t iTo)
+		{
+			if (iFrom == iTo)
+				return iFrom;
+
+			Key key{ iFrom, iTo };
+			if (key.iFrom > key.iTo)
+				std::swap(key.iFrom, key.iTo);
+			auto iter = m_map.find(key);
+			if (iter != m_map.end())
+				return iter->second;
+
+			size_t newIdx = vertices.size();
+			Vector3 newPos = (vertices[iFrom].pos + vertices[iTo].pos) / 2;
+			vertices.emplace_back(Vertex{ newPos, DirectX::XMFLOAT4(DirectX::Colors::White) });
+			m_map[key] = newIdx;
+			return newIdx;
+		}
+	} helper(mesh);
+	for (size_t i = indexBegin; i < indexEnd; i += 3)
+	{
+		size_t* pTri = &mesh.indices[i];
+		size_t base[3] = { pTri[0], pTri[1], pTri[2] };
+		size_t subdiv[3] = // 影响顶点容器
+		{
+			helper.getMiddle(base[0], base[1]),
+			helper.getMiddle(base[1], base[2]),
+			helper.getMiddle(base[0], base[2])
+		};
+		// 先填中间
+		memcpy(pTri, subdiv, sizeof(subdiv));
+		mesh.indices.insert(mesh.indices.end(), 
+		{
+			base[0], subdiv[0], subdiv[2],
+			base[1], subdiv[1], subdiv[0],
+			base[2], subdiv[2], subdiv[1]
+		});
+	}
 }
 
 bool Cylinder::isValid() const
