@@ -31,7 +31,7 @@ void ShapesSample::createModel(MeshData& mesh)
 
 	Geosphere sphere2 = { 0 };
 	sphere2.radius = 2;
-	sphere2.divLevel = 4;
+	sphere2.divLevel = 2;
 	createGeosphere(sphere2, mesh);
 }
 
@@ -179,21 +179,58 @@ void ShapesSample::createGeosphere(const Geosphere& shape, MeshData& mesh)
 {
 	size_t vertexBegin = mesh.vertices.size();
 	size_t indexBegin = mesh.indices.size();
-	const float sqrt3 = sqrt(3.f);
-	mesh.vertices.insert(mesh.vertices.end(), 
+	if (false)
 	{
-		{ DirectX::XMFLOAT3(0, 1, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
-		{ DirectX::XMFLOAT3(sqrt3 / 2, -0.5f, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
-		{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, 3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) },
-		{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, -3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) }
-	});
-	mesh.indices.insert(mesh.indices.end(),
+		const float sqrt3 = sqrt(3.f);
+		mesh.vertices.insert(mesh.vertices.end(),
+		{
+			{ DirectX::XMFLOAT3(0, 1, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
+			{ DirectX::XMFLOAT3(sqrt3 / 2, -0.5f, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
+			{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, 3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) },
+			{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, -3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) }
+		});
+		mesh.indices.insert(mesh.indices.end(),
+		{
+			vertexBegin, vertexBegin + 1, vertexBegin + 3,
+			vertexBegin, vertexBegin + 2, vertexBegin + 1,
+			vertexBegin, vertexBegin + 3, vertexBegin + 2,
+			vertexBegin + 1, vertexBegin + 2, vertexBegin + 3
+		});
+	}
+	else
 	{
-		vertexBegin, vertexBegin + 1, vertexBegin + 3,
-		vertexBegin, vertexBegin + 2, vertexBegin + 1,
-		vertexBegin, vertexBegin + 3, vertexBegin + 2,
-		vertexBegin + 1, vertexBegin + 2, vertexBegin + 3
-	});
+		const int slice = 5;
+		const float rad36 = 36.0 * DirectX::XM_PI / 180.0;
+		const float fsin36 = 1.f / sin(rad36);
+		const float ftan36 = 1.f / tan(rad36);
+		const float bodyheight = sqrt(3 - (fsin36 - ftan36) * (fsin36 - ftan36)) / 2;
+		const float topheight = sqrt(4 - fsin36 * fsin36) + bodyheight;
+
+		Vertex v = { DirectX::XMFLOAT3(0, topheight, 0), DirectX::XMFLOAT4(DirectX::Colors::White) };
+		mesh.vertices.push_back(v);
+		std::vector<Vector3> normal = createCircelNormal(slice);
+		for (size_t i = 0; i < normal.size(); ++i)
+		{
+			normal[i] *= fsin36;
+			normal[i].y = bodyheight;
+			v.pos = normal[i];
+			mesh.vertices.push_back(v);
+			normal[i] = -normal[i];
+		}
+		for (size_t i = 0; i < normal.size(); ++i)
+		{
+			size_t pos = (i + 2) % normal.size();
+			v.pos = normal[pos];
+			mesh.vertices.push_back(v);
+		}
+		v.pos = DirectX::XMFLOAT3(0, -topheight, 0);
+		mesh.vertices.push_back(v);
+
+		createCircelTri(mesh.indices, vertexBegin, vertexBegin + 1, vertexBegin + slice);
+		createCylindricalTri(mesh.indices, vertexBegin + 1, 1, slice);
+		size_t base = mesh.vertices.size() - 1;
+		createCircelTri(mesh.indices, base, base - 1, base - slice);
+	}
 	for (size_t i = 0; i < shape.divLevel; ++i)
 	{
 		subdivGeosphere(mesh, indexBegin, mesh.indices.size());
