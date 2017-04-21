@@ -42,15 +42,16 @@ int LD3DApplication::exec()
 	std::unique_ptr<CordinateAxis> spAxis = std::make_unique<CordinateAxis>(this);
 	spAxis->create();
 
-	m_spSamples->select(2);
+	m_spSamples->select(0);
 	m_unifiedTimer.start();
 	while (m_spMainWnd->processMessage())
 	{
 		m_spInput->update();
+		m_spSamples->activeSample()->update();
+		update();
 
 		m_spSamples->activeSample()->draw();
 		spAxis->draw();
-		update();
 		draw();
 
 		m_spDevice->swap();

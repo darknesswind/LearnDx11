@@ -9,6 +9,12 @@ LSampleBase::LSampleBase(LD3DApplication* pApp)
 	LD3DDevice* pDevice = m_pApp->device();
 	m_pDevice = pDevice->device();
 	m_pContext = pDevice->immContext();
+
+	m_vertexDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	m_vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	m_indexDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	m_indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 }
 
 
@@ -25,20 +31,39 @@ void LSampleBase::create()
 	m_vertexSize = mesh.vertices.size();
 	m_indexSize = mesh.indices.size();
 
-	D3D11_BUFFER_DESC vbd = { 0 };
-	fillBufDesc(vbd, sizeof(Vertices::value_type) * m_vertexSize, D3D11_BIND_VERTEX_BUFFER);
+	m_vertexDesc.ByteWidth = sizeof(Vertices::value_type) * m_vertexSize;
+	if (m_vertexDesc.CPUAccessFlags != 0 && m_vertexDesc.Usage == D3D11_USAGE_IMMUTABLE)
+		m_vertexDesc.Usage = D3D11_USAGE_DYNAMIC;
 
 	D3D11_SUBRESOURCE_DATA srd = { mesh.vertices.data() };
-	m_pDevice->CreateBuffer(&vbd, &srd, &m_spVertexBuff);
+	m_pDevice->CreateBuffer(&m_vertexDesc, &srd, &m_spVertexBuff);
 
 	if (!mesh.indices.empty())
 	{
-		D3D11_BUFFER_DESC ibd = { 0 };
-		fillBufDesc(ibd, sizeof(Indices::value_type) * m_indexSize, D3D11_BIND_INDEX_BUFFER);
+		m_indexDesc.ByteWidth = sizeof(Indices::value_type) * m_indexSize;
+		if (m_indexDesc.CPUAccessFlags != 0 && m_indexDesc.Usage == D3D11_USAGE_IMMUTABLE)
+			m_indexDesc.Usage = D3D11_USAGE_DYNAMIC;
 
 		D3D11_SUBRESOURCE_DATA srd = { mesh.indices.data() };
-		m_pDevice->CreateBuffer(&ibd, &srd, &m_spIndexBuff);
+		m_pDevice->CreateBuffer(&m_indexDesc, &srd, &m_spIndexBuff);
 	}
+
+	ID3DX11EffectConstantBuffer* pcbPerFrame = m_pApp->effect()->GetConstantBufferByName("cbPerFrame");
+	if (pcbPerFrame)
+	{
+		m_gTime = pcbPerFrame->GetMemberByName("gTime");
+	}
+	ID3DX11EffectConstantBuffer* pcbPerObject = m_pApp->effect()->GetConstantBufferByName("cbPerObject");
+	if (pcbPerObject)
+	{
+		ID3DX11EffectVariable* pVar = pcbPerObject->GetMemberByName("gWorldViewProj");
+		if (pVar) m_gWorldViewProj = pVar->AsMatrix();
+	}
+}
+
+void LSampleBase::update()
+{
+
 }
 
 void LSampleBase::createInputLayout()
@@ -48,8 +73,12 @@ void LSampleBase::createInputLayout()
 
 	D3D11_INPUT_ELEMENT_DESC desc1[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TARGET",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",	0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",	1, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",		0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	com_ptr<ID3D11InputLayout> spLayout;
 	CKHR(m_pDevice->CreateInputLayout(desc1, ARRAYSIZE(desc1),
@@ -63,9 +92,15 @@ void LSampleBase::createInputLayout()
 	desc.FillMode = m_fillMode;
 	desc.CullMode = m_cullMode;
 	desc.DepthClipEnable = TRUE;
-
+// 	desc.ScissorEnable = TRUE;
 	m_pDevice->CreateRasterizerState(&desc, &spState);
 	m_pContext->RSSetState(spState);
+
+	if (desc.ScissorEnable)
+	{
+		D3D11_RECT rect = { 100, 100, 400, 400 };
+		m_pContext->RSSetScissorRects(1, &rect);
+	}
 }
 
 void LSampleBase::createModel(MeshData& mesh)
@@ -75,10 +110,17 @@ void LSampleBase::createModel(MeshData& mesh)
 
 void LSampleBase::draw()
 {
-	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 4 / 3.f, 1.0f, 1000.0f);
-	DirectX::XMMATRIX m = m_pApp->camera()->matrix() * proj;
-
-	m_pApp->effect()->GetConstantBufferByIndex(0)->GetMemberByIndex(0)->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&m));
+	if (m_gTime)
+	{
+		float nFrame = m_pApp->timer().curFrame() / 60.0;
+		m_gTime->SetRawValue(&nFrame, 0, sizeof(nFrame));
+	}
+	if (m_gWorldViewProj)
+	{
+		DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 4 / 3.f, 1.0f, 1000.0f);
+		DirectX::XMMATRIX m = m_pApp->camera()->matrix() * proj;
+		m_gWorldViewProj->SetMatrix(reinterpret_cast<float*>(&m));
+	}
 	m_pApp->effect()->GetTechniqueByIndex(0)->GetPassByIndex(0)->Apply(0, m_pContext);
 	m_pContext->IASetPrimitiveTopology(m_topology);
 
@@ -94,14 +136,4 @@ void LSampleBase::draw()
 	{
 		m_pContext->Draw(m_vertexSize, 0);
 	}
-}
-
-void LSampleBase::fillBufDesc(D3D11_BUFFER_DESC& desc, UINT size, D3D11_BIND_FLAG bindFlag)
-{
-	desc.ByteWidth = size;
-	desc.Usage = D3D11_USAGE_IMMUTABLE;
-	desc.BindFlags = bindFlag;
-	desc.CPUAccessFlags = 0;// D3D11_CPU_ACCESS_FLAG
-	desc.MiscFlags = 0;		// D3D11_RESOURCE_MISC_FLAG
-	desc.StructureByteStride = 0;
 }

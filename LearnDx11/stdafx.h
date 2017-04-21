@@ -26,7 +26,9 @@ typedef unsigned short ushort;
 
 typedef DirectX::SimpleMath::Vector4 Vector4;
 typedef DirectX::SimpleMath::Vector3 Vector3;
+typedef DirectX::SimpleMath::Vector2 Vector2;
 typedef DirectX::SimpleMath::Matrix Matrix;
+typedef DirectX::SimpleMath::Color DxColor;
 
 HRESULT ReportErrorResult(HRESULT hr, LPCWSTR code);
 

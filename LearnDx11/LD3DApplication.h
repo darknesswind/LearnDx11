@@ -23,7 +23,7 @@ public:
 	LCamera* camera() { return &m_camera; }
 	LD3DDevice* device() { return m_spDevice.get(); }
 	ID3DX11Effect* effect() { return m_spEffect; }
-
+	LUnifiedTimer& timer() { return m_unifiedTimer; }
 
 protected:
 	virtual void update();

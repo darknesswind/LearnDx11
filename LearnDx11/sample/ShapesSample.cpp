@@ -184,10 +184,10 @@ void ShapesSample::createGeosphere(const Geosphere& shape, MeshData& mesh)
 		const float sqrt3 = sqrt(3.f);
 		mesh.vertices.insert(mesh.vertices.end(),
 		{
-			{ DirectX::XMFLOAT3(0, 1, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
-			{ DirectX::XMFLOAT3(sqrt3 / 2, -0.5f, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
-			{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, 3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) },
-			{ DirectX::XMFLOAT3(-sqrt3 / 4, -0.5f, -3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) }
+			{ Vector3(0, 1, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
+			{ Vector3(sqrt3 / 2, -0.5f, 0), DirectX::XMFLOAT4(DirectX::Colors::White) },
+			{ Vector3(-sqrt3 / 4, -0.5f, 3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) },
+			{ Vector3(-sqrt3 / 4, -0.5f, -3.f / 4), DirectX::XMFLOAT4(DirectX::Colors::White) }
 		});
 		mesh.indices.insert(mesh.indices.end(),
 		{

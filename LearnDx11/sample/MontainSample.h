@@ -7,6 +7,8 @@ public:
 	MontainSample(LD3DApplication* pApp);
 	~MontainSample();
 
+	void update() override;
+
 public:
 	void createModel(MeshData& mesh) override;
 
