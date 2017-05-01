@@ -35,6 +35,7 @@ protected:
 
 	virtual void createInputLayout();
 	virtual void createModel(MeshData& mesh);
+	virtual void calcTriListNormal(MeshData& mesh);
 
 protected:
 	LD3DApplication* m_pApp{ nullptr };

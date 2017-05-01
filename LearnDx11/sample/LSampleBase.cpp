@@ -28,6 +28,9 @@ void LSampleBase::create()
 
 	MeshData mesh;
 	createModel(mesh);
+	if (m_topology == D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+		calcTriListNormal(mesh);
+	
 	m_vertexSize = mesh.vertices.size();
 	m_indexSize = mesh.indices.size();
 
@@ -108,11 +111,31 @@ void LSampleBase::createModel(MeshData& mesh)
 
 }
 
+void LSampleBase::calcTriListNormal(MeshData & mesh)
+{
+	for (size_t i = 0; i < mesh.indices.size(); i += 3)
+	{
+		size_t idx0 = mesh.indices[i];
+		size_t idx1 = mesh.indices[i + 1];
+		size_t idx2 = mesh.indices[i + 2];
+		Vector3& p0 = mesh.vertices[idx0].pos;
+		Vector3& p1 = mesh.vertices[idx1].pos;
+		Vector3& p2 = mesh.vertices[idx2].pos;
+		Vector3 normal = (p1 - p0).Cross(p2 - p0);
+
+		mesh.vertices[idx0].normal += normal;
+		mesh.vertices[idx1].normal += normal;
+		mesh.vertices[idx2].normal += normal;
+	}
+	for (auto iter = mesh.vertices.begin(); iter != mesh.vertices.end(); ++iter)
+		iter->normal.Normalize();
+}
+
 void LSampleBase::draw()
 {
 	if (m_gTime)
 	{
-		float nFrame = m_pApp->timer().curFrame() / 60.0;
+		float nFrame = m_pApp->timer().curFrame() / 60.0f;
 		m_gTime->SetRawValue(&nFrame, 0, sizeof(nFrame));
 	}
 	if (m_gWorldViewProj)
